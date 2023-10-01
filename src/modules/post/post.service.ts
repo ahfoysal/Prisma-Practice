@@ -26,7 +26,9 @@ const addPost = async (data: Post): Promise<Post> => {
 //   return result;
 // };
 
-const getPosts = async (): Promise<Partial<Post>[]> => {
+const getPosts = async (options: any): Promise<Partial<Post>[]> => {
+  const { sortBy, sortOrder } = options;
+  console.log(sortBy, sortOrder);
   const result = await prisma.post.findMany({
     // select: {
     //   email: true,
@@ -37,21 +39,33 @@ const getPosts = async (): Promise<Partial<Post>[]> => {
       author: true,
       category: true,
     },
+    orderBy:
+      sortBy && sortOrder
+        ? {
+            [sortBy]: sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
   });
   return result;
 };
 
-// const getSinglePost = async (id: number) => {
-//   const result = await prisma.post.findUnique({
-//     where: {
-//       id: id,
-//     },
-//   });
-//   return result;
-// };
+const getSinglePost = async (id: number) => {
+  const result = await prisma.post.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      category: true,
+      author: true,
+    },
+  });
+  return result;
+};
 export const PostService = {
   getPosts,
   addPost,
   // addOrUpdatePost,
-  // getSinglePost,
+  getSinglePost,
 };

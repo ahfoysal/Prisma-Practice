@@ -32,7 +32,8 @@ const addPost: RequestHandler = catchAsync(
 // );
 const getPosts: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    const result = await PostService.getPosts();
+    // console.log(req.query);
+    const result = await PostService.getPosts(req.query);
 
     sendResponse<Partial<Post>[]>(res, {
       statusCode: httpStatus.OK,
@@ -42,21 +43,21 @@ const getPosts: RequestHandler = catchAsync(
     });
   }
 );
-// const getSingleUser: RequestHandler = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const result = await UserService.getSingleUser(Number(req.params.id));
+const getSinglePost: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await PostService.getSinglePost(Number(req.params.id));
 
-//     sendResponse<User>(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: "User fetched successfully!",
-//       data: result,
-//     });
-//   }
-// );
+    sendResponse<Post>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User fetched successfully!",
+      data: result,
+    });
+  }
+);
 export const PostController = {
   getPosts,
   addPost,
   // addOrUpdateUser,
-  // getSingleUser,
+  getSinglePost,
 };
