@@ -25,10 +25,34 @@ const addOrUpdateUser = async (data: Profile): Promise<Profile> => {
   const result = await prisma.profile.create({ data });
   return result;
 };
-const getUsers = async () => {};
+const getUsers = async (): Promise<Partial<User>[]> => {
+  const result = await prisma.user.findMany({
+    // select: {
+    //   email: true,
+    //   id: true,
 
+    // },
+    include: {
+      profile: true,
+    },
+  });
+  return result;
+};
+
+const getSingleUser = async (id: number) => {
+  const result = await prisma.user.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      profile: true,
+    },
+  });
+  return result;
+};
 export const UserService = {
   getUsers,
   addUser,
   addOrUpdateUser,
+  getSingleUser,
 };

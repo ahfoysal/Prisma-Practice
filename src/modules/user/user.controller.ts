@@ -34,10 +34,22 @@ const getUsers: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     const result = await UserService.getUsers();
 
-    sendResponse(res, {
+    sendResponse<Partial<User>[]>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Student created successfully!",
+      message: "Users fetched successfully!",
+      data: result,
+    });
+  }
+);
+const getSingleUser: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await UserService.getSingleUser(Number(req.params.id));
+
+    sendResponse<User>(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "User fetched successfully!",
       data: result,
     });
   }
@@ -46,4 +58,5 @@ export const UserController = {
   getUsers,
   addUser,
   addOrUpdateUser,
+  getSingleUser,
 };
