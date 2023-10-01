@@ -5,50 +5,76 @@ const addPost = async (data: Post): Promise<Post> => {
   const result = await prisma.post.create({ data });
   return result;
 };
-// const addOrUpdatePost = async (data: Profile): Promise<Profile> => {
-//   const isExist = await prisma.profile.findUnique({
-//     where: {
-//       PostId: data.PostId,
-//     },
-//   });
-//   if (isExist) {
-//     const result = await prisma.profile.update({
-//       where: {
-//         PostId: data.PostId,
-//       },
-//       data: {
-//         bio: data.bio,
-//       },
-//     });
-//     return result;
-//   }
-//   const result = await prisma.profile.create({ data });
-//   return result;
-// };
-
-const getPosts = async (options: any): Promise<Partial<Post>[]> => {
-  const { sortBy, sortOrder } = options;
-  console.log(sortBy, sortOrder);
-  const result = await prisma.post.findMany({
-    // select: {
-    //   email: true,
-    //   id: true,
-
-    // },
-    include: {
-      author: true,
-      category: true,
+const addOrUpdatePost = async (data: Post): Promise<Post> => {
+  const isExist = await prisma.profile.findUnique({
+    where: {
+      id: data.id,
     },
-    orderBy:
-      sortBy && sortOrder
-        ? {
-            [sortBy]: sortOrder,
-          }
-        : {
-            createdAt: "desc",
-          },
   });
+  if (isExist) {
+    const result = await prisma.post.update({
+      where: {
+        id: data.id,
+      },
+      data: data,
+    });
+    return result;
+  }
+  const result = await prisma.post.create({ data });
   return result;
+};
+
+const getPosts = async (options: any) => {
+  const { sortBy, sortOrder, searchTerm, page, limit } = options;
+  console.log(options);
+  const skip = parseInt(limit) * page - parseInt(limit);
+  const take = parseInt(limit);
+  return await prisma.$transaction(async (tx) => {
+    const result = await tx.post.findMany({
+      skip,
+      take,
+      include: {
+        author: true,
+        category: true,
+      },
+      orderBy:
+        sortBy && sortOrder
+          ? {
+              [sortBy]: sortOrder,
+            }
+          : {
+              createdAt: "desc",
+            },
+      where: {
+        OR: [
+          {
+            title: {
+              contains: searchTerm,
+              mode: "insensitive",
+            },
+          },
+          {
+            author: {
+              name: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          },
+          {
+            category: {
+              name: {
+                contains: searchTerm,
+                mode: "insensitive",
+              },
+            },
+          },
+        ],
+      },
+    });
+    const total = await tx.post.count();
+    return { result, total, page, limit };
+  });
 };
 
 const getSinglePost = async (id: number) => {
@@ -66,6 +92,6 @@ const getSinglePost = async (id: number) => {
 export const PostService = {
   getPosts,
   addPost,
-  // addOrUpdatePost,
+  addOrUpdatePost,
   getSinglePost,
 };

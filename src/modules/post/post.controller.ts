@@ -33,13 +33,20 @@ const addPost: RequestHandler = catchAsync(
 const getPosts: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     // console.log(req.query);
-    const result = await PostService.getPosts(req.query);
+    const { result, total, page, limit } = await PostService.getPosts(
+      req.query
+    );
 
     sendResponse<Partial<Post>[]>(res, {
       statusCode: httpStatus.OK,
       success: true,
       message: "Posts fetched successfully!",
       data: result,
+      meta: {
+        total,
+        page,
+        limit,
+      },
     });
   }
 );
