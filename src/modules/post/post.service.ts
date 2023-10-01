@@ -5,30 +5,22 @@ const addPost = async (data: Post): Promise<Post> => {
   const result = await prisma.post.create({ data });
   return result;
 };
-const addOrUpdatePost = async (data: Post): Promise<Post> => {
-  const isExist = await prisma.profile.findUnique({
+const updatePost = async (data: Partial<Post>): Promise<Post> => {
+  console.log(data);
+  const result = await prisma.post.update({
     where: {
       id: data.id,
     },
+    data,
   });
-  if (isExist) {
-    const result = await prisma.post.update({
-      where: {
-        id: data.id,
-      },
-      data: data,
-    });
-    return result;
-  }
-  const result = await prisma.post.create({ data });
   return result;
 };
 
 const getPosts = async (options: any) => {
   const { sortBy, sortOrder, searchTerm, page, limit } = options;
   console.log(options);
-  const skip = parseInt(limit) * page - parseInt(limit);
-  const take = parseInt(limit);
+  const skip = parseInt(limit) * page - parseInt(limit) || 0;
+  const take = parseInt(limit) || 10;
   return await prisma.$transaction(async (tx) => {
     const result = await tx.post.findMany({
       skip,
@@ -73,7 +65,7 @@ const getPosts = async (options: any) => {
       },
     });
     const total = await tx.post.count();
-    return { result, total, page, limit };
+    return { result, total, page: page || 1, limit: limit || 10 };
   });
 };
 
@@ -89,9 +81,18 @@ const getSinglePost = async (id: number) => {
   });
   return result;
 };
+const deletePost = async (id: number) => {
+  const result = await prisma.post.delete({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
 export const PostService = {
   getPosts,
   addPost,
-  addOrUpdatePost,
+  updatePost,
   getSinglePost,
+  deletePost,
 };

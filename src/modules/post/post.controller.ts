@@ -18,18 +18,18 @@ const addPost: RequestHandler = catchAsync(
     });
   }
 );
-// const addOrUpdateUser: RequestHandler = catchAsync(
-//   async (req: Request, res: Response) => {
-//     const result = await UserService.addOrUpdateUser(req.body);
+const updatePost: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await PostService.updatePost(req.body);
 
-//     sendResponse(res, {
-//       statusCode: httpStatus.OK,
-//       success: true,
-//       message: "Profile updated/created successfully!",
-//       data: result,
-//     });
-//   }
-// );
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Post updated successfully!",
+      data: result,
+    });
+  }
+);
 const getPosts: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
     // console.log(req.query);
@@ -57,7 +57,19 @@ const getSinglePost: RequestHandler = catchAsync(
     sendResponse<Post>(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "User fetched successfully!",
+      message: "Post fetched successfully!",
+      data: result,
+    });
+  }
+);
+const deletePost: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await PostService.deletePost(Number(req.params.id));
+
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Post Deleted successfully!",
       data: result,
     });
   }
@@ -65,6 +77,7 @@ const getSinglePost: RequestHandler = catchAsync(
 export const PostController = {
   getPosts,
   addPost,
-  // addOrUpdateUser,
+  updatePost,
   getSinglePost,
+  deletePost,
 };
